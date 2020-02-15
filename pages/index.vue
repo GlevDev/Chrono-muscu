@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <div>Encore un test</div>
+    <div>Encore un test - 2</div>
   </v-container>
 </template>
 
