@@ -1,6 +1,10 @@
 <template>
   <v-container>
-    <div>Encore un test - 2</div>
+    <v-row>
+      <v-col>
+        
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
