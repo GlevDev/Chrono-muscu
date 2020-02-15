@@ -1,16 +1,23 @@
 <template>
   <v-container>
-    <v-row>
-      <v-col>
-        
+    <v-row justify="center">
+      <v-col cols="5">
+        <SelectSerie />
+      </v-col>
+      <v-col cols="5">
+        <v-btn>Ajouter une pause</v-btn>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-export default {
+import SelectSerie from '~/components/SelectSerie'
 
+export default {
+  components: {
+    SelectSerie
+  }
 }
 </script>
 
