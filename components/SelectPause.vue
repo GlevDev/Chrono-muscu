@@ -5,7 +5,7 @@
         <v-btn color="#BAB2B5" v-on="on" @click="startChrono" block>Lancer une pause</v-btn>
       </template>
       <v-card class="pa-4" :color="color">
-        <v-card-text class="text-center headline">Une pause bien méritée...</v-card-text>
+        <v-card-text class="text-center title">Une pause bien méritée...</v-card-text>
         <v-card-text class="text-center chrono my-3">{{showChrono(chrono)}}</v-card-text>
 
         <v-row justify="center" class="ma-0">
