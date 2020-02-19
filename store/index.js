@@ -10,6 +10,11 @@ export const mutations = {
       state.sessions.push({...session, numSerie: state.nbSeries});
     }
     else state.sessions.push(session);
+  },
+
+  clearSession (state) {
+    state.sessions = [];
+    state.nbSeries = 0;
   }
 }
 

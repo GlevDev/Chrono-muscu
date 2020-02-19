@@ -1,12 +1,12 @@
 <template>
-  <v-row justify="center">
+  <v-row justify="center" class="mx-0">
     <v-dialog v-model="dialog" persistent max-width="400">
       <template v-slot:activator="{on}">
-        <v-btn color="#EDC7B7" v-on="on" @click="startChrono" block>Lancer une série</v-btn>
+        <v-btn color="#EDC7B7" v-on="on" @click="startChrono" block>Série</v-btn>
       </template>
       <v-card class="pa-4" :color="color">
         <v-card-text class="text-center title">Lancement d'une série</v-card-text>
-        <v-card-text class="text-center chrono my-3">{{showChrono(chrono)}}</v-card-text>
+        <v-card-text class="text-center chrono my-3">{{$showChrono(chrono)}}</v-card-text>
         <v-form v-model="valid">
           <v-row justify="center" class="ma-0" v-if="isPause">
             <v-col cols="12" sm="10">
@@ -68,7 +68,8 @@ export default {
           return pattern.test(value) || "Seuls les chiffres sont acceptés";
         }
       },
-      valid: true
+      valid: true,
+      icon: 'mdi-dumbbell'
     };
   },
 
@@ -91,22 +92,13 @@ export default {
         chrono: this.chrono,
         repetitions: this.repetitions,
         poids: this.poids,
-        color: this.color
+        icon: this.icon
       });
       this.dialog = false;
       this.chrono = 0;
       this.isPause = false;
       this.repetitions = "";
       this.poids = "";
-    },
-
-    showChrono(number) {
-      let minute;
-      Math.floor(number / 60) > 0
-        ? (minute = Math.floor(number / 60) + "'")
-        : (minute = "");
-      let seconde = (number % 60) + '"';
-      return minute + seconde;
     }
   }
 };

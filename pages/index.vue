@@ -1,40 +1,32 @@
 <template>
   <v-container fluid class="back">
+    <v-row>
+      <v-card height="50px"></v-card>
+      <v-btn color="blue-grey darken-4" top right absolute outlined @click="reinit">
+        <v-icon>mdi-restart</v-icon>
+      </v-btn>
+    </v-row>
     <v-row justify="center">
-      <v-col cols="11" sm="5" class="mx-2">
+      <v-col cols="5" sm="4" lg="2" class="mx-1">
+        <SelectAuxStatus :status="warm" />
+      </v-col>
+      <v-col cols="5" sm="4" lg="2" class="mx-1">
         <SelectSerie />
       </v-col>
-      <v-col cols="11" sm="5" class="mx-2">
-        <SelectPause />
+      <v-col cols="5" sm="4" lg="2" class="mx-1">
+        <SelectAuxStatus :status="pause" />
+      </v-col>
+      <v-col cols="5" sm="4" lg="2" class="mx-1">
+        <SelectAuxStatus :status="stretch" />
       </v-col>
     </v-row>
     <v-row justify="center">
       <v-col cols="12" sm="8" md="6" lg="4" class="text-center">
-        <!-- <v-card v-for="(session, index) in getSessions" :key="index" class="mb-2 pa-2" :color="session.color">
-          <v-card-text class="text-center headline">{{session.type}}<span v-if="session.numSerie">&nbsp;n°{{session.numSerie}}</span><span>&nbsp;-&nbsp;{{showChrono(session.chrono)}}</span><span v-if="session.numSerie"> - {{session.repetitions}} répétitions à {{session.poids}} kg</span></v-card-text>
-        </v-card>-->
-        <v-list disabled v-if="getSessions.length != 0" color="#EEE2DC">
-          <v-list-item v-for="(session, index) in getSessions" :key="index" class="list">
-            <v-list-item-icon>
-              <v-icon v-if="session.type === 'Serie'" large>mdi-dumbbell</v-icon>
-              <v-icon v-if="session.type === 'Pause'" large>mdi-alarm</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content >
-              <v-list-item-title class="subtitle-2">
-                {{session.type}}
-                <span v-if="session.numSerie">&nbsp;n°{{session.numSerie}}</span>
-                <span>&nbsp;-&nbsp;{{showChrono(session.chrono)}}</span>
-                <span
-                  v-if="session.numSerie"
-                >- {{session.repetitions}} répétitions à {{session.poids}} kg</span>
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
+        <ListeSeries :main="true" />
       </v-col>
     </v-row>
     <v-row justify="center">
-      <v-col cols="11" sm="5" class="mx-2" v-if="getSessions.length != 0">
+      <v-col cols="11" sm="5" class="mx-2">
         <Finish />
       </v-col>
     </v-row>
@@ -43,34 +35,55 @@
 
 <script>
 import SelectSerie from "~/components/SelectSerie";
-import SelectPause from "~/components/SelectPause";
-import Finish from '~/components/Finish'
-import { mapGetters } from "vuex";
+import SelectAuxStatus from "~/components/SelectAuxStatus";
+import Finish from "~/components/Finish";
+import ListeSeries from "~/components/ListeSeries";
 
 export default {
   data() {
-    return {};
+    return {
+      pause: {
+        type: 'Pause',
+        btnStartColor: '#BAB2B5',
+        btnStart: 'Recup',
+        btnEnd: 'Finir la pause',
+        text: 'Une pause bien méritée...',
+        icon: 'mdi-alarm'
+      },
+
+      warm: {
+        type: 'Warm-up',
+        btnStartColor: '#CC7BA1',
+        btnStart: 'Warm-up',
+        btnEnd: 'On peut démarrer',
+        text: 'Échauffement',
+        icon: 'mdi-run'
+      },
+
+      stretch: {
+        type: 'Stretching',
+        btnStartColor: '#82ACC9',
+        btnStart: 'Stretching',
+        btnEnd: 'Bien joué...',
+        text: 'Étirements',
+        icon: 'mdi-yoga'
+      }
+    };
   },
 
   components: {
     SelectSerie,
-    SelectPause,
-    Finish
+    SelectAuxStatus,
+    Finish,
+    ListeSeries
   },
 
   methods: {
-    showChrono(number) {
-      let minute;
-      Math.floor(number / 60) > 0
-        ? (minute = Math.floor(number / 60) + "'")
-        : (minute = "");
-      let seconde = (number % 60) + '"';
-      return minute + seconde;
+    // suppression du cache (persistance du store) + réinitialisation du store
+    reinit() {
+      window.localStorage.clear();
+      this.$store.commit("clearSession");
     }
-  },
-
-  computed: {
-    ...mapGetters(["getSessions"])
   }
 };
 </script>

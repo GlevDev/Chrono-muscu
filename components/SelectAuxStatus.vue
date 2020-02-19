@@ -1,12 +1,12 @@
 <template>
-  <v-row justify="center">
+  <v-row justify="center" class="mx-0">
     <v-dialog v-model="dialog" persistent max-width="400">
       <template v-slot:activator="{on}">
-        <v-btn color="#BAB2B5" v-on="on" @click="startChrono" block>Lancer une pause</v-btn>
+        <v-btn :color="status.btnStartColor" v-on="on" @click="startChrono" block>{{status.btnStart}}</v-btn>
       </template>
-      <v-card class="pa-4" :color="color">
-        <v-card-text class="text-center title">Une pause bien méritée...</v-card-text>
-        <v-card-text class="text-center chrono my-3">{{showChrono(chrono)}}</v-card-text>
+      <v-card class="pa-4" color="#CC7BA1">
+        <v-card-text class="text-center title">{{status.text}}</v-card-text>
+        <v-card-text class="text-center chrono my-3">{{$showChrono(chrono)}}</v-card-text>
 
         <v-row justify="center" class="ma-0">
           <v-col cols="11" sm="5">
@@ -14,7 +14,7 @@
               @click="finishSet"
               color="#EDC7B7"
               block
-            >Finir la pause</v-btn>
+            >{{status.btnEnd}}</v-btn>
           </v-col>
         </v-row>
       </v-card>
@@ -26,12 +26,13 @@
 export default {
   data() {
     return {
-      color: '#CC7BA1',
       dialog: false,
       chrono: 0,
       intervalID: ""
     };
   },
+
+  props: ["status"],
 
   methods: {
     startChrono() {
@@ -42,22 +43,13 @@ export default {
 
     finishSet() {
       this.$store.commit("addSession", {
-        type: "Pause",
+        type: this.status.type,
         chrono: this.chrono,
-        color: this.color
+        icon: this.status.icon
       });
       this.dialog = false;
       this.chrono = 0;
       clearInterval(this.intervalID);
-    },
-
-    showChrono(number) {
-      let minute;
-      Math.floor(number / 60) > 0
-        ? (minute = Math.floor(number / 60) + "'")
-        : (minute = "");
-      let seconde = (number % 60) + '"';
-      return minute + seconde;
     }
   }
 };

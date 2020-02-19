@@ -1,9 +1,9 @@
 <template>
-  <v-container>
+  <v-container class="pa-0">
     <v-row justify="center">
-      <v-dialog v-model="dialog" persistent max-width="400">
+      <v-dialog v-model="dialog" persistent max-width="400" v-if="getSessions.length != 0">
         <template v-slot:activator="{on}">
-          <v-btn color="#CC7BA1" v-on="on" block>Terminer la séance</v-btn>
+          <v-btn :color="color" v-on="on" block>Terminer la séance</v-btn>
         </template>
         <v-card class="pa-4" :color="color">
           <v-card-text class="text-center title">Êtes-vous sûr(e) ?</v-card-text>
@@ -19,12 +19,12 @@
       </v-dialog>
     </v-row>
     <v-row>
-      <v-dialog v-model="end" width="90vw">
+      <v-dialog v-model="end" width="90vw" persistent>
         <v-card id="printArea">
           <v-card-text
             class="text-center title"
-          >Récapitulatif de la séance du {{new Date().getDate()}}/{{new Date().getMonth()}}/{{new Date().getFullYear()}}</v-card-text>
-          <v-list-item-content disabled v-if="getSessions.length != 0" color="#EEE2DC">
+          >Récapitulatif de la séance du {{date.toLocaleDateString()}}</v-card-text>
+          <v-list-item-content v-if="getSessions.length != 0">
             <v-list-item>
               <v-icon>mdi-chevron-right</v-icon>
               <span>Nombre de sessions de travail : {{nbrSeries}}</span>
@@ -35,41 +35,31 @@
             </v-list-item>
             <v-list-item>
               <v-icon>mdi-chevron-right</v-icon>
-              <span>temps de travail : {{showChrono(tempsTravail)}}</span>
+              <span>Temps d'échauffement : {{$showChrono(tempsWarm)}}</span>
             </v-list-item>
             <v-list-item>
               <v-icon>mdi-chevron-right</v-icon>
-              <span>temps de pause : {{showChrono(tempsPause)}}</span>
+              <span>Temps de travail : {{$showChrono(tempsTravail)}}</span>
             </v-list-item>
             <v-list-item>
               <v-icon>mdi-chevron-right</v-icon>
-              <span>temps total : {{showChrono(tempsTotal)}}</span>
+              <span>Temps de pause : {{$showChrono(tempsPause)}}</span>
+            </v-list-item>
+            <v-list-item>
+              <v-icon>mdi-chevron-right</v-icon>
+              <span>Temps d'étirement : {{$showChrono(tempsStretch)}}</span>
+            </v-list-item>
+            <v-list-item>
+              <v-icon>mdi-chevron-right</v-icon>
+              <span>Temps total : {{$showChrono(tempsTotal)}}</span>
             </v-list-item>
           </v-list-item-content>
-          <v-list-item-content disabled v-if="getSessions.length != 0" color="#EEE2DC">
-            <v-list-item v-for="(session, index) in getSessions" :key="index" class="list">
-              <v-list-item-icon>
-                <v-icon v-if="session.type === 'Serie'" large>mdi-dumbbell</v-icon>
-                <v-icon v-if="session.type === 'Pause'" large>mdi-alarm</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title class="subtitle-2">
-                  {{session.type}}
-                  <span v-if="session.numSerie">&nbsp;n°{{session.numSerie}}</span>
-                  <span>&nbsp;-&nbsp;{{showChrono(session.chrono)}}</span>
-                  <span
-                    v-if="session.numSerie"
-                  >- {{session.repetitions}} répétitions à {{session.poids}} kg</span>
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list-item-content>
-          <v-row justify="center">
-            <v-col cols="11" sm="5">
+          <ListeSeries />
+          <v-row justify="center" id="ignore">
+            <v-col cols="5">
               <v-btn @click="printPDF" color="#EDC7B7" block>Sauvegarder</v-btn>
             </v-col>
           </v-row>
-          
         </v-card>
       </v-dialog>
     </v-row>
@@ -77,8 +67,9 @@
 </template>
 
 <script>
+import ListeSeries from "~/components/ListeSeries";
 import { mapGetters } from "vuex";
-import jsPDF from 'jspdf';
+import jsPDF from "jspdf";
 
 export default {
   data() {
@@ -87,44 +78,66 @@ export default {
       dialog: false,
       tempsTravail: 0,
       tempsPause: 0,
+      tempsWarm: 0,
+      tempsStretch: 0,
       tempsTotal: 0,
       intervalID: "",
       end: false,
       nbrSeries: 0,
-      poidsTotal: 0
+      poidsTotal: 0,
+      date: new Date()
     };
   },
 
+  components: {
+    ListeSeries
+  },
+
   methods: {
+    // clôture de la boite de dialogue de confirmation de fin de séance
+    // ouverture de la boite de dialogue du récapitulatif de la séance
+    // calcul des données de la séance
     theEnd() {
       this.dialog = false;
       this.end = true;
-      for(let el of this.getSessions) {
+      for (let el of this.getSessions) {
         this.tempsTotal += el.chrono;
-        if(el.type === "Serie") {
-          this.tempsTravail += el.chrono;
-          this.nbrSeries ++;
-          this.poidsTotal += el.repetitions * el.poids;
-        } else if(el.type === "Pause") {
-          this.tempsPause += el.chrono;
+        switch(el.type) {
+          case "Pause":
+            this.tempsPause += el.chrono;
+            break;
+          case "Warm-up":
+            this.tempsWarm += el.chrono;
+            break;
+          case "Stretching":
+            this.tempsStretch += el.chrono;
+            break;
+          default:
+            this.tempsTravail += el.chrono;
+            this.nbrSeries++;
+            this.poidsTotal += el.repetitions * el.poids;
+            break;
         }
       }
     },
 
-    showChrono(number) {
-      let minute;
-      Math.floor(number / 60) > 0
-        ? (minute = Math.floor(number / 60) + "'")
-        : (minute = "");
-      let seconde = (number % 60) + '"';
-      return minute + seconde;
-    },
-
     printPDF() {
-      let doc = new jsPDF();
+      let doc = new jsPDF({ format: "letter" });
+      const elementHandler = {
+        "#ignore": function(element, renderer) {
+          return true;
+        }
+      };
       const source = document.getElementById("printArea");
-      doc.fromHTML(source, 15, 15, {width: 170})
-      doc.save("seance.pdf")
+      doc.fromHTML(source, 15, 0.5, {
+        elementHandlers: elementHandler
+      });
+      const showDate = `${this.date.getDate()}-${this.date.getMonth() +
+        1}-${this.date.getFullYear()}`;
+      doc.save(`seance-${showDate}.pdf`);
+      window.localStorage.clear();
+      this.$store.commit("clearSession");
+      this.end = false;
     }
   },
 

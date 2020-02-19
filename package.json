@@ -11,9 +11,9 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
-    "@nuxtjs/pwa": "^3.0.0-0",
     "jspdf": "^1.5.3",
-    "nuxt": "^2.0.0"
+    "nuxt": "^2.0.0",
+    "vuex-persistedstate": "^2.7.1"
   },
   "devDependencies": {
     "@nuxtjs/vuetify": "^1.10.3"

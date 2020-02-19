@@ -28,6 +28,8 @@ export default {
   ** Plugins to load before mounting the App
   */
   plugins: [
+    { src: '~/plugins/localStorage.js', ssr: false },
+    { src: '~/plugins/showChrono.js', ssr: false}
   ],
   /*
   ** Nuxt.js dev-modules
@@ -39,7 +41,6 @@ export default {
   ** Nuxt.js modules
   */
   modules: [
-    '@nuxtjs/pwa',
   ],
   /*
   ** Build configuration
