@@ -1,7 +1,7 @@
 # chrono-muscu
 
 > Chrono pour exercices de musculation avec possibilité d'exporter sa séance en pdf
-Disponible sur chrono-muscu.glevdev.com
+> Disponible sur chrono-muscu.glevdev.com
 
 ## Build Setup
 
